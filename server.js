@@ -4,31 +4,11 @@ var app = express();
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 
+var Friends = require('./models');
+
+var friendList = Friends.friendList;
+
 app.use(express.static('public'));
-
-var Friends = {
-  username: '',
-  addFriend: function(name){
-    var friend = {name: name, id: this.setId};
-    this.friends.push(friend);
-    this.setId += 1;
-    return friend;
-  }
-};
-
-var createFriendList = function (){
-  var userFriends = Object.create(Friends);
-  userFriends.username = '',
-  userFriends.friends = [];
-  userFriends. setId = 1;
-  return userFriends
-}
-
-var friendList = createFriendList();
-friendList.username = 'Renee'
-friendList.addFriend('Maria');
-friendList.addFriend('Ana');
-friendList.addFriend('Monica');
 
 var getFriendIdIndex = function (friendId){
   var index = -1;
@@ -65,7 +45,7 @@ app.put('/friends/:id', jsonParser, function(req, res){
   var chosenFriendId = Number(req.params.id);
   var chosenFriend = getFriendIdIndex(chosenFriendId);
   
-  if(chosenFriendId != req.body.id || req.body.id == ''){
+  if(req.body.id == ''){
     return res.sendStatus(400)
   }
   
@@ -97,7 +77,7 @@ app.delete('/friends/:id', function(req, res){
   
 })
 
-// listen for requests :)
+// listen for requests 
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
