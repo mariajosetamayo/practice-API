@@ -1,37 +1,64 @@
-// server.js
-// where your node app starts
 
-// init project
 var express = require('express');
 var app = express();
 
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
-
-// http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
-app.get("/friends", function (request, response) {
-  response.sendFile(__dirname + '/views/index.html');
+var Friends = {
+  username: '',
+  addFriend: function(name){
+    var friend = {name:name, id: this.setId};
+    this.friends.push(friend);
+    this.setId += 1;
+    return friend;
+  }
+};
+
+var createFriendList = function (){
+  var userFriends = Object.create(Friends);
+  userFriends.username = '',
+  userFriends.friends = [];
+  userFriends. setId = 1;
+  return userFriends
+}
+
+var friendList = createFriendList();
+friendList.username = 'Renee'
+friendList.addFriend('Maria');
+friendList.addFriend('Ana');
+friendList.addFriend('Monica');
+
+var getFriendIdIndex = function (friendId){
+  var index = -1;
+  for (var i = 0;i<friendList.friends.length; i++){
+    if (friendList.friends[i].id === friendId){
+      index = i;
+    }
+  }
+  return index 
+}
+
+app.get('/friends', function (req, res) {
+  res.json(friendList.friends);
 });
 
-app.get("/dreams", function (request, response) {
-  response.send(dreams);
+app.get('/friends/:id', function (req, res) {
+  var chosenFriendId = Number(req.params.id)
+  var chosenFriend = getFriendIdIndex(chosenFriendId);
+
+  res.status(200).json(friendList.friends[chosenFriend]);
 });
 
-// could also use the POST body instead of query string: http://expressjs.com/en/api.html#req.body
-app.post("/dreams", function (request, response) {
-  dreams.push(request.query.dream);
-  response.sendStatus(200);
+app.post('/friends', function(req, res){
+  var newFriend = friendList.add(req.body.name);
+  
+  res.status(200).json(newFriend);
 });
 
-// Simple in-memory store for now
-var dreams = [
-  "Find and count some sheep",
-  "Climb a really tall mountain",
-  "Wash the dishes"
-];
+app.put('/friends/:id', function(req, res){
+  
+})
+
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
