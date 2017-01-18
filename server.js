@@ -1,13 +1,15 @@
 
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
+var jsonParser = bodyParser.json();
 
 app.use(express.static('public'));
 
 var Friends = {
   username: '',
   addFriend: function(name){
-    var friend = {name:name, id: this.setId};
+    var friend = {name: name, id: this.setId};
     this.friends.push(friend);
     this.setId += 1;
     return friend;
@@ -49,16 +51,51 @@ app.get('/friends/:id', function (req, res) {
   res.status(200).json(friendList.friends[chosenFriend]);
 });
 
-app.post('/friends', function(req, res){
-  var newFriend = friendList.add(req.body.name);
+app.post('/friends', jsonParser, function(req, res){
+  if (!('name' in req.body)){
+    return res.sendStatus(400);
+  }
+  
+  var newFriend = friendList.addFriend(req.body.name);
   
   res.status(200).json(newFriend);
 });
 
-app.put('/friends/:id', function(req, res){
+app.put('/friends/:id', jsonParser, function(req, res){
+  var chosenFriendId = Number(req.params.id);
+  var chosenFriend = getFriendIdIndex(chosenFriendId);
+  
+  if(chosenFriendId != req.body.id || req.body.id == ''){
+    return res.sendStatus(400)
+  }
+  
+  if (chosenFriend>=0){
+    var friendToUpdate = friendList.friends[chosenFriend];
+    var keys = Object.keys(req.body);
+    keys.forEach(function(key){
+      friendToUpdate[key] = req.body[key];
+    });
+    res.status(200).json(friendToUpdate);
+  }
+  else{
+    var newFriend = friendList.addFriend(req.params.body);
+    res.status(200).json(newFriend);
+  }
+});
+
+app.delete('/friends/:id', function(req, res){
+  var chosenFriendId = Number(req.params.id);
+  var chosenFriend = getFriendIdIndex(chosenFriendId);
+  if(chosenFriend >= 0){
+    var friendToDelete = friendList.friends[chosenFriend];
+    friendList.friends.splice(chosenFriend, 1);
+    return res.status(200).json(friendToDelete);
+  }
+  else{
+    return res.sendStatus(404);
+  }
   
 })
-
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
