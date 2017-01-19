@@ -7,18 +7,10 @@ var jsonParser = bodyParser.json();
 var Friends = require('./models');
 
 var friendList = Friends.friendList;
+var getFriendIdIndex = Friends.getFriendIdIndex;
+var friendToUpdate = Friends.friendToUpdate;
+var friendToDelete = Friends.friendToDelete;
 
-// app.use(express.static('public'));
-
-var getFriendIdIndex = function (friendId){
-  var index = -1;
-  for (var i = 0;i<friendList.friends.length; i++){
-    if (friendList.friends[i].id === friendId){
-      index = i;
-    }
-  }
-  return index 
-}
 
 app.get('/friends', function (req, res) {
   res.json(friendList.friends);
@@ -50,12 +42,8 @@ app.put('/friends/:id', jsonParser, function(req, res){
   }
   
   if (chosenFriend>=0){
-    var friendToUpdate = friendList.friends[chosenFriend];
-    var keys = Object.keys(req.body);
-    keys.forEach(function(key){
-      friendToUpdate[key] = req.body[key];
-    });
-    res.status(200).json(friendToUpdate);
+    var updatedFriend = friendToUpdate(chosenFriend, req.body)
+    res.status(200).json(updatedFriend);
   }
   else{
     var newFriend = friendList.addFriend(req.params.body);
@@ -67,9 +55,8 @@ app.delete('/friends/:id', function(req, res){
   var chosenFriendId = Number(req.params.id);
   var chosenFriend = getFriendIdIndex(chosenFriendId);
   if(chosenFriend >= 0){
-    var friendToDelete = friendList.friends[chosenFriend];
-    friendList.friends.splice(chosenFriend, 1);
-    return res.status(200).json(friendToDelete);
+    var deletedFriend = friendToDelete(chosenFriend)
+    return res.status(200).json(deletedFriend);
   }
   else{
     return res.sendStatus(404);
