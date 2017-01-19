@@ -8,7 +8,7 @@ var Friends = require('./models');
 
 var friendList = Friends.friendList;
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 var getFriendIdIndex = function (friendId){
   var index = -1;
