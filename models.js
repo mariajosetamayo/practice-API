@@ -1,53 +1,65 @@
 var Friends = {
-  username: '',
+  // username: '',
   addFriend: function(name){
-    var friend = {name:name, id: this.setId};
+    var friend = {name:name, id: this.nextId};
     this.friends.push(friend);
-    this.setId += 1;
+    this.nextId += 1;
     return friend;
-  }
+  },
+  getIndexFromFriendId: function(friendId){
+    var index = -1;
+    for (var i = 0;i<this.friends.length; i++){
+      if (this.friends[i].id === friendId){
+        index = i;
+      }
+    }
+    return index 
+  },
+  getFriendById: function(chosenFriendId){
+    // sacamos el codigo del server y le pusimos en un nuevo metodo
+    // el server no debe ver el index. 
+      var prop = this.property; 
+      var chosenFriend = this.getIndexFromFriendId(chosenFriendId);
+      return this.friends[chosenFriend];
+  },
+  update: function(friend){
+    var chosenFriendId = Number(friend.id);
+    var prop = this.property;
+    var chosenFriend = this.getIndexFromFriendId(chosenFriendId);
+    console.log('this is the chosen friend', chosenFriend)
+    
+    if (chosenFriend>=0){
+      var updateFriend = this.friends[chosenFriend];
+      var keys = Object.keys(friend);
+      keys.forEach(function(key){
+        updateFriend[key] = friend[key];
+      });
+      return updateFriend
+    }
+    else{
+      return this.addFriend(friend.name);
+    }
+  },
+  delete:function(chosenFriendId){
+    var prop = this.property;
+    var chosenFriend = this.getIndexFromFriendId(chosenFriendId);
+    if(chosenFriend >= 0){
+      var deleteFriend = this.friends[chosenFriend];
+      this.friends.splice(chosenFriend, 1);
+      return deleteFriend;
+    }
+    else{
+      return undefined;
+    }
+  },
 };
 
 var createFriendList = function (){
   var userFriends = Object.create(Friends);
-  userFriends.username = '',
+  // userFriends.username = '',
   userFriends.friends = [];
-  userFriends. setId = 1;
+  userFriends.nextId = 1;
   return userFriends
 }
 
-var friendList = createFriendList();
-friendList.username = 'Renee'
-friendList.addFriend('Maria');
-friendList.addFriend('Ana');
-friendList.addFriend('Monica');
-
-var getFriendIdIndex = function (friendId){
-  var index = -1;
-  for (var i = 0;i<friendList.friends.length; i++){
-    if (friendList.friends[i].id === friendId){
-      index = i;
-    }
-  }
-  return index 
-}
-
-var friendToUpdate = function(chosenFriend, request){
-  var updateFriend = friendList.friends[chosenFriend];
-  var keys = Object.keys(request);
-  keys.forEach(function(key){
-    updateFriend[key] = request[key];
-  });
-  return updateFriend
-}
-
-var friendToDelete = function(chosenFriend){
-  var deleteFriend = friendList.friends[chosenFriend];
-  friendList.friends.splice(chosenFriend, 1);
-  return deleteFriend
-}
-
-exports.friendList = friendList;
-exports.getFriendIdIndex = getFriendIdIndex;
-exports.friendToUpdate = friendToUpdate;
-exports.friendToDelete = friendToDelete;
+exports.createFriendList = createFriendList;
